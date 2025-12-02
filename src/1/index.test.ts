@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { findPassword } from ".";
+import { DATASET_TEXT } from './input'
 
 describe("findPassword", () => {
   it("rotates to L correctly", () => {
@@ -135,5 +136,12 @@ describe("findPassword", () => {
 
     expect(position).toBe(97);
     expect(timesreachedZero).toBe(15);
+  });
+
+  it("sequences correctly", () => {
+    const [position, timesreachedZero] = findPassword(DATASET_TEXT.split('\n'));
+
+    expect(position).toBe(39);
+    expect(timesreachedZero).toBe(6295);
   });
 });

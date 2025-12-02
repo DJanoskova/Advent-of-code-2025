@@ -5,7 +5,7 @@ const DIRECTION_RIGHT = "R";
 type ALLOWED_DIRECTION = typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT;
 
 const MIN_NUMBER = 0;
-const MAX_NUMBER = 99;
+const TURN_NUMBER_COUNT = 100
 
 function isDirectionvalid(direction: string): direction is ALLOWED_DIRECTION {
   return direction === DIRECTION_LEFT || direction === DIRECTION_RIGHT;
@@ -56,36 +56,37 @@ const movePosition = (
   steps: number,
   timesReachedZero: number
 ) => {
+  let result;
+
   if (direction === DIRECTION_LEFT) {
-    let result = position - steps;
-
-    if (position === MIN_NUMBER) {
-      timesReachedZero--;
-    }
-
-    while (result <= MIN_NUMBER) {
-      timesReachedZero++;
-
-      if (result === MIN_NUMBER) {
-        return [result, timesReachedZero];
-      }
-
-      result += 100;
-    }
-
-    return [result, timesReachedZero];
-  }
-
-  let result = position + steps;
-
-  while (result > MAX_NUMBER) {
-    timesReachedZero++;
-
-    result -= 100;
+    [result, timesReachedZero] = moveLeft(position, steps, timesReachedZero)
+  } else {
+    [result, timesReachedZero] = moveRight(position, steps, timesReachedZero)
   }
 
   return [result, timesReachedZero];
 };
+
+const moveLeft = (position: number, steps: number, timesReachedZero: number) => {
+  let result = position - steps;
+  const additionalZeroTurn = position > MIN_NUMBER && result <= MIN_NUMBER ? 1 : 0
+  const timesReachedZeroThisIteration = Math.floor(Math.abs(result) / TURN_NUMBER_COUNT) + additionalZeroTurn
+  result = result % TURN_NUMBER_COUNT
+
+  if (result < 0) {
+    result += TURN_NUMBER_COUNT
+  }
+
+  return [result, timesReachedZero + timesReachedZeroThisIteration]
+}
+
+const moveRight = (position: number, steps: number, timesReachedZero: number) => {
+  let result = position + steps;
+  const timesReachedZeroThisIteration = Math.floor(Math.abs(result) / TURN_NUMBER_COUNT)
+  result = result % TURN_NUMBER_COUNT
+
+  return [result, timesReachedZero + timesReachedZeroThisIteration]
+}
 
 export const runChallenge = () => {
   const input = DATASET_TEXT.split("\n");
