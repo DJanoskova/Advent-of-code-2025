@@ -56,15 +56,11 @@ const movePosition = (
   steps: number,
   timesReachedZero: number
 ) => {
-  let result;
-
   if (direction === DIRECTION_LEFT) {
-    [result, timesReachedZero] = moveLeft(position, steps, timesReachedZero)
-  } else {
-    [result, timesReachedZero] = moveRight(position, steps, timesReachedZero)
+    return moveLeft(position, steps, timesReachedZero)
   }
 
-  return [result, timesReachedZero];
+  return moveRight(position, steps, timesReachedZero)
 };
 
 const moveLeft = (position: number, steps: number, timesReachedZero: number) => {
