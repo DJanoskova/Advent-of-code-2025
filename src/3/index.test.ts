@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getLargestVoltageInBank, sumBanks } from './index'
+import { BATTERY_BANKS } from "./input";
 
 describe('getLargestVoltageInBank', () => {
   it('should get correct voltage for "987654321111111"', () => {
@@ -24,13 +25,10 @@ describe('getLargestVoltageInBank', () => {
   })
 })
 
-// describe('sumBanks', () => {
-//   it('processes dataset', () => {
-//     const result = sumBanks([`987654321111111
-//       811111111111119
-//       234234234234278
-//       818181911112111`])
+describe('sumBanks', () => {
+  it('processes dataset', () => {
+    const result = sumBanks(BATTERY_BANKS.split('\n'))
 
-//     expect(result).toEqual(357)
-//   })
-// })
+    expect(result).toEqual(169935154100102)
+  })
+})
