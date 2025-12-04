@@ -15,15 +15,15 @@ const MAX_ROLLS_AROUND = 4
 
 const ROLL_CHARACTER = '@'
 
-const ACCESSIBLE_ROLLS_MEMO: Record<string, boolean> = {}
+// const ACCESSIBLE_ROLLS_MEMO: Record<string, boolean> = {}
 
-const getCanRollBeAccessed = (indexX: number, indexY: number, rows: string[]) => {
-  const indexName = `${indexX}-${indexY}`;
-  const memoizedValue = ACCESSIBLE_ROLLS_MEMO[indexName]
+const getCanRollBeAccessed = (indexX: number, indexY: number, rows: string[][]) => {
+  // const indexName = `${indexX}-${indexY}`;
+  // const memoizedValue = ACCESSIBLE_ROLLS_MEMO[indexName]
 
-  if (memoizedValue !== undefined) {
-    return memoizedValue
-  }
+  // if (memoizedValue !== undefined) {
+  //   return memoizedValue
+  // }
 
   let tries = 0;
 
@@ -41,29 +41,45 @@ const getCanRollBeAccessed = (indexX: number, indexY: number, rows: string[]) =>
   return true;
 }
 
-export const countPaperRolls = (rows: string[]) => {
-  let accessibleRollsCount = 0;
+export const removePaperRolls = (rows: string[]) => {
+  let totalRollsRemoved = 0;
+  let lastIterationRollsRemoved = 1;
 
-  rows.forEach((row, indexY) => {
-    const characters = row.split('')
-
-    characters.forEach((character, indexX) => {
-      if (character !== ROLL_CHARACTER) {
-        return
-      }
-
-      if (getCanRollBeAccessed(indexX, indexY, rows)) {
-        accessibleRollsCount++
-      }
-    })
+  const data = rows.map(row => {
+    return row.split('').map(character => character)
   })
 
+  while (lastIterationRollsRemoved > 0) {
+    lastIterationRollsRemoved = 0
+
+    data.forEach((_, indexY) => {
+      const row = data[indexY]
+
+      row.forEach((__, indexX) => {
+        const character = row[indexX]
+        if (character !== ROLL_CHARACTER) {
+          return
+        }
+
+        if (getCanRollBeAccessed(indexX, indexY, data)) {
+          if (data[indexY]?.[indexX]) {
+            data[indexY][indexX] = 'x'
+          }
+          lastIterationRollsRemoved++
+          totalRollsRemoved++
+        }
+      })
+    })
+  }
+
   console.log(
-    `Number of paper rolls that can be accessed: ${accessibleRollsCount}`
+    `Number of paper rolls that have been removed: ${totalRollsRemoved}`
   );
+
+  return totalRollsRemoved
 }
 
 export const runChallenge = () => {
   const input = PAPER_ROLLS.split("\n");
-  countPaperRolls(input);
+  removePaperRolls(input);
 };

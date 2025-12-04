@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { countPaperRolls } from './index'
+import { removePaperRolls } from './index'
 import { PAPER_ROLLS } from "./input";
 
 
 describe('countPaperRolls', () => {
   it('gets the correct result', () => {
-    const result = countPaperRolls(PAPER_ROLLS.split('\n'))
+    const result = removePaperRolls(PAPER_ROLLS.split('\n'))
+    expect(result).toBe(9609)
   })
 })
