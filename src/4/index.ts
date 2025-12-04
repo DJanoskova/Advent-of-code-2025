@@ -71,15 +71,14 @@ export const removePaperRolls = (rows: string[]) => {
           lastIterationRollsRemoved++
           totalRollsRemoved++
 
-          ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX, indexY)] = undefined
-
+          // the spaces around - we need to clean our memory of their accessibility
           for (let i = 0; i < directions.length; i++) {
             const [moveX, moveY] = directions[i]
             ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX + moveX, indexY + moveY)] = undefined
           }
-        } else {
-          ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX, indexY)] = false
         }
+        ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX, indexY)] = false
+
       })
     })
   }
