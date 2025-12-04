@@ -15,15 +15,16 @@ const MAX_ROLLS_AROUND = 4
 
 const ROLL_CHARACTER = '@'
 
-// const ACCESSIBLE_ROLLS_MEMO: Record<string, boolean> = {}
+const ACCESSIBLE_ROLLS_MEMO: Record<string, boolean | undefined> = {}
+
+const getMemoIndexName = (indexX: number, indexY: number) => `${indexX}-${indexY}`;
 
 const getCanRollBeAccessed = (indexX: number, indexY: number, rows: string[][]) => {
-  // const indexName = `${indexX}-${indexY}`;
-  // const memoizedValue = ACCESSIBLE_ROLLS_MEMO[indexName]
+  const memoizedValue = ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX, indexY)]
 
-  // if (memoizedValue !== undefined) {
-  //   return memoizedValue
-  // }
+  if (memoizedValue !== undefined) {
+    return memoizedValue
+  }
 
   let tries = 0;
 
@@ -61,12 +62,23 @@ export const removePaperRolls = (rows: string[]) => {
           return
         }
 
-        if (getCanRollBeAccessed(indexX, indexY, data)) {
+        const canGetAccessed = getCanRollBeAccessed(indexX, indexY, data)
+
+        if (canGetAccessed) {
           if (data[indexY]?.[indexX]) {
             data[indexY][indexX] = 'x'
           }
           lastIterationRollsRemoved++
           totalRollsRemoved++
+
+          ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX, indexY)] = undefined
+
+          for (let i = 0; i < directions.length; i++) {
+            const [moveX, moveY] = directions[i]
+            ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX + moveX, indexY + moveY)] = undefined
+          }
+        } else {
+          ACCESSIBLE_ROLLS_MEMO[getMemoIndexName(indexX, indexY)] = false
         }
       })
     })
