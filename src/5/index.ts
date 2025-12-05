@@ -24,7 +24,7 @@ const assignIdRanges = (freshIdRanges: string[]) => {
   return freshIds
 }
 
-const mergeRanges = (ids: Map<number, number>) => {
+export const mergeRanges = (ids: Map<number, number>) => {
   let lastIterationMerged = true;
 
   while (lastIterationMerged === true) {
@@ -67,7 +67,7 @@ const mergeRanges = (ids: Map<number, number>) => {
   return ids
 }
 
-const countAllIds = (freshIds: Map<number, number>) => {
+export const countAllIds = (freshIds: Map<number, number>) => {
   let total = 0;
 
   for (const currentMin of freshIds.keys()) {
@@ -88,13 +88,19 @@ export const getNumbersHaveOverlap = (min1: number, max1: number, min2: number, 
   return max1 >= min2 && min1 <= max2
 }
 
-export const runChallenge = () => {
-  const [freshIdsRangesString] = INGREDIENT_DATA.split("\n\n");
+export const processDataAndGetResult = (input: string) => {
+  const [freshIdsRangesString] = input.split("\n\n");
   const freshIdRanges = freshIdsRangesString.split('\n')
 
   const freshIds = assignIdRanges(freshIdRanges)
   const mergedIds = mergeRanges(freshIds)
   const total = countAllIds(mergedIds)
+
+  return total
+}
+
+export const runChallenge = () => {
+  const total = processDataAndGetResult(INGREDIENT_DATA)
 
   console.log(
     `Count of ingredients that are fresh: ${total}`
