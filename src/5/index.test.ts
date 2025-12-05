@@ -35,6 +35,7 @@ describe('processDataAndGetResult', () => {
   it('processes correctly', () => {
     const result = processDataAndGetResult(INGREDIENT_DATA)
 
+
     expect(result).toEqual(360341832208407)
   })
 })

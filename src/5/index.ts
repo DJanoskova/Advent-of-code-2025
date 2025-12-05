@@ -1,106 +1,125 @@
 import { INGREDIENT_DATA } from "./input";
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const assignIdRanges = (freshIdRanges: string[]) => {
-  const freshIds = new Map<number, number>()
+export const assignIdRanges = (freshIdRanges: string[]) => {
+  const freshIds = new Map<number, number>();
 
-  freshIdRanges.forEach(range => {
-    const [minString, maxString] = range.split('-')
+  freshIdRanges.forEach((range) => {
+    const [minString, maxString] = range.split("-");
 
-    const currentMin = Number(minString)
-    const currentMax = Number(maxString)
+    const currentMin = Number(minString);
+    const currentMax = Number(maxString);
 
     const existingValue = freshIds.get(currentMin);
 
     if (existingValue !== undefined) {
       // whole range is already assigned
       if (existingValue >= currentMax) {
-        return
+        return;
       }
     }
 
-    freshIds.set(currentMin, Number(maxString))
-  })
+    freshIds.set(currentMin, Number(maxString));
+  });
 
-  return freshIds
-}
+  return freshIds;
+};
 
-export const mergeRanges = (ids: Map<number, number>) => {
+export const mergeRanges = async (
+  ids: Map<number, number>,
+  onChange?: (freshIds: Map<number, number>, index: number) => void
+) => {
   let lastIterationMerged = true;
 
   while (lastIterationMerged === true) {
-    lastIterationMerged = false
+    let index = -1;
+    lastIterationMerged = false;
 
     for (const currentMin of ids.keys()) {
-      const currentMax = ids.get(currentMin)
-      let hasOverlap = false
+      index++;
+      const currentMax = ids.get(currentMin);
+      let hasOverlap = false;
 
       if (currentMax === undefined) {
-        continue
+        continue;
       }
 
       for (const checkedMin of ids.keys()) {
-        const checkedMax = ids.get(checkedMin)
+        const checkedMax = ids.get(checkedMin);
 
         if (checkedMin === currentMin || checkedMax === undefined) {
-          continue
+          continue;
         }
 
-        hasOverlap = getNumbersHaveOverlap(currentMin, currentMax, checkedMin, checkedMax)
+        hasOverlap = getNumbersHaveOverlap(
+          currentMin,
+          currentMax,
+          checkedMin,
+          checkedMax
+        );
 
         if (hasOverlap) {
           const newMin = currentMin < checkedMin ? currentMin : checkedMin;
-          const newMax = currentMax > checkedMax ? currentMax : checkedMax
-          ids.delete(currentMin)
-          ids.delete(checkedMin)
-          ids.set(newMin, newMax)
-          lastIterationMerged = true
-          break
+          const newMax = currentMax > checkedMax ? currentMax : checkedMax;
+          ids.delete(currentMin);
+          ids.delete(checkedMin);
+          ids.set(newMin, newMax);
+          onChange?.(ids, index);
+          lastIterationMerged = true;
+
+          await sleep(100);
+          break;
         }
       }
 
       if (hasOverlap) {
-        break
+        break;
       }
     }
   }
 
-  return ids
-}
+  return ids;
+};
 
 export const countAllIds = (freshIds: Map<number, number>) => {
   let total = 0;
 
   for (const currentMin of freshIds.keys()) {
-    const currentMax = freshIds.get(currentMin)
+    const currentMax = freshIds.get(currentMin);
 
     if (currentMax === undefined) {
-      continue
+      continue;
     }
 
-    const diff = currentMax + 1 - currentMin
-    total += diff
+    const diff = currentMax + 1 - currentMin;
+    total += diff;
   }
 
-  return total
-}
+  return total;
+};
 
-export const getNumbersHaveOverlap = (min1: number, max1: number, min2: number, max2: number) => {
-  return max1 >= min2 && min1 <= max2
-}
+export const getNumbersHaveOverlap = (
+  min1: number,
+  max1: number,
+  min2: number,
+  max2: number
+) => {
+  return max1 >= min2 && min1 <= max2;
+};
 
-export const processDataAndGetResult = (input: string) => {
+export const processDataAndGetResult = async (input: string) => {
   const [freshIdsRangesString] = input.split("\n\n");
-  const freshIdRanges = freshIdsRangesString.split('\n')
+  const freshIdRanges = freshIdsRangesString.split("\n");
 
-  const freshIds = assignIdRanges(freshIdRanges)
-  const mergedIds = mergeRanges(freshIds)
-  const total = countAllIds(mergedIds)
+  const freshIds = assignIdRanges(freshIdRanges);
+  const mergedIds = await mergeRanges(freshIds);
+  const total = countAllIds(mergedIds);
 
-  return total
-}
+  return total;
+};
 
-export const runChallenge = () => {
-  const total = processDataAndGetResult(INGREDIENT_DATA)
+export const runChallenge = async () => {
+  const total = await processDataAndGetResult(INGREDIENT_DATA)
 
   console.log(
     `Count of ingredients that are fresh: ${total}`
