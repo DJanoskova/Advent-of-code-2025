@@ -1,5 +1,18 @@
 import { MATH_DATA } from "./input";
 
+const addNumberToTotalByCharacter = (character: string, incomingNumber: number, total: number) => {
+  switch (character) {
+    case '+':
+      return total + incomingNumber
+    case '-':
+      return total - incomingNumber
+    case '*':
+      return total * incomingNumber
+    default:
+      return total
+  }
+}
+
 export const processDataAndGetResult = (data: string) => {
   const mathCharacterYIndex = data.split('\n').length - 1
   const maxIndexX = data.split('\n')[0].length - 1
@@ -19,52 +32,20 @@ export const processDataAndGetResult = (data: string) => {
       indexY = 0
       let totalInIteration: number | undefined
 
-      switch (currentCharacter) {
-        case '+':
-          for (const key of numbersInIteration.keys()) {
-            const value = numbersInIteration.get(key)
-            if (totalInIteration !== undefined && value !== undefined) {
-              totalInIteration += value
-            }
-            if (totalInIteration === undefined && value !== undefined) {
-              totalInIteration = value
-            }
-
+      for (const key of numbersInIteration.keys()) {
+        const value = numbersInIteration.get(key)
+        if (value !== undefined) {
+          if (totalInIteration === undefined) {
+            totalInIteration = value
+          } else {
+            totalInIteration = addNumberToTotalByCharacter(currentCharacter, value, totalInIteration!)
           }
-          break
-        case '-':
-          for (const key of numbersInIteration.keys()) {
-            const value = numbersInIteration.get(key)
-            if (totalInIteration !== undefined && value !== undefined) {
-              totalInIteration -= value
-            }
-            if (totalInIteration === undefined && value !== undefined) {
-              totalInIteration = value
-            }
-
-          }
-          break
-        case '*':
-          for (const key of numbersInIteration.keys()) {
-            const value = numbersInIteration.get(key)
-            if (totalInIteration !== undefined && value !== undefined) {
-              totalInIteration *= value
-            }
-            if (totalInIteration === undefined && value !== undefined) {
-              totalInIteration = value
-            }
-
-          }
-          break
-        default:
-          break
+        }
       }
 
       total += totalInIteration || 0
-
-      // count total here
-
       numbersInIteration.clear()
+
       continue
     }
 
