@@ -1,4 +1,5 @@
 import { INGREDIENT_DATA } from "./input";
+
 export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const assignIdRanges = (freshIdRanges: string[]) => {
@@ -67,7 +68,7 @@ export const mergeRanges = async (
           onChange?.(ids, index);
           lastIterationMerged = true;
 
-          await sleep(100);
+          // await sleep(100);
           break;
         }
       }

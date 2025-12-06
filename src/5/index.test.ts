@@ -4,8 +4,8 @@ import { countAllIds, mergeRanges, processDataAndGetResult } from './index'
 import { INGREDIENT_DATA } from "./input";
 
 describe('mergeRanges', () => {
-  it('merges ranges correctly', () => {
-    const result = mergeRanges(new Map([
+  it('merges ranges correctly', async () => {
+    const result = await mergeRanges(new Map([
       [1, 5],
       [10, 20],
       [3, 7],
@@ -32,8 +32,8 @@ describe('countAllIds', () => {
 })
 
 describe('processDataAndGetResult', () => {
-  it('processes correctly', () => {
-    const result = processDataAndGetResult(INGREDIENT_DATA)
+  it('processes correctly', async () => {
+    const result = await processDataAndGetResult(INGREDIENT_DATA)
 
 
     expect(result).toEqual(360341832208407)
