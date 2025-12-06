@@ -1,61 +1,91 @@
 import { MATH_DATA } from "./input";
 
 export const processDataAndGetResult = (data: string) => {
-  const formattedData = data.replace(/ {2,}/g, ' ');
-
-  let indexX = 0
+  const mathCharacterYIndex = data.split('\n').length - 1
+  const maxIndexX = data.split('\n')[0].length - 1
+  let indexX = maxIndexX
   let indexY = 0
-  const mathCharacterYIndex = formattedData.split('\n').length - 1
   let total = 0
-  let hasNextColumn = true
 
-  while (hasNextColumn) {
-    const mathCharacter = formattedData.split('\n')[mathCharacterYIndex].split(' ')[indexX]
+  let numbersInIteration = new Map<number, number>()
 
-    if (!mathCharacter) {
-      hasNextColumn = false
-      break
+  while (indexX >= 0) {
+    const currentCharacter = data.split('\n')[indexY][indexX]
+
+    if (currentCharacter === '+' || currentCharacter === '-' || currentCharacter === '*') {
+      indexX--
+      // skip one space column
+      indexX--
+      indexY = 0
+      let totalInIteration: number | undefined
+
+      switch (currentCharacter) {
+        case '+':
+          for (const key of numbersInIteration.keys()) {
+            const value = numbersInIteration.get(key)
+            if (totalInIteration !== undefined && value !== undefined) {
+              totalInIteration += value
+            }
+            if (totalInIteration === undefined && value !== undefined) {
+              totalInIteration = value
+            }
+
+          }
+          break
+        case '-':
+          for (const key of numbersInIteration.keys()) {
+            const value = numbersInIteration.get(key)
+            if (totalInIteration !== undefined && value !== undefined) {
+              totalInIteration -= value
+            }
+            if (totalInIteration === undefined && value !== undefined) {
+              totalInIteration = value
+            }
+
+          }
+          break
+        case '*':
+          for (const key of numbersInIteration.keys()) {
+            const value = numbersInIteration.get(key)
+            if (totalInIteration !== undefined && value !== undefined) {
+              totalInIteration *= value
+            }
+            if (totalInIteration === undefined && value !== undefined) {
+              totalInIteration = value
+            }
+
+          }
+          break
+        default:
+          break
+      }
+
+      total += totalInIteration || 0
+
+      // count total here
+
+      numbersInIteration.clear()
+      continue
     }
 
-    let totalPerIteration: number | undefined = undefined
-
-    while (indexY < mathCharacterYIndex) {
-      const checkedValue = formattedData.split('\n')[indexY].trim().split(' ')[indexX]
-
-      if (!checkedValue) {
-        indexY++
-        continue
-      }
-
-      const checkedNumber = Number(checkedValue)
-
-      if (totalPerIteration === undefined) {
-        totalPerIteration = checkedNumber
-      } else {
-        switch (mathCharacter) {
-          case '+':
-            totalPerIteration += checkedNumber
-            break
-          case '-':
-            totalPerIteration -= checkedNumber
-            break
-          case '*':
-            totalPerIteration *= checkedNumber
-            break
-          case '/':
-            totalPerIteration /= checkedNumber
-            break
-          default:
-            break
-        }
-      }
-
+    if (currentCharacter === ' ') {
       indexY++
+      if (indexY > mathCharacterYIndex) {
+        indexY = 0
+        indexX--
+      }
+      continue
     }
 
-    indexY = 0
-    indexX++
-    total += totalPerIteration || 0
+    const currentNumber = Number(currentCharacter)
+    const existingNum = numbersInIteration.get(indexX)
+    if (existingNum) {
+      numbersInIteration.set(indexX, Number(`${existingNum}${currentNumber}`))
+    } else {
+      numbersInIteration.set(indexX, currentNumber)
+    }
+
+    indexY++
   }
 
   return total
