@@ -23,7 +23,7 @@ export const processDataAndGetResult = (data: string) => {
   let numbersInIteration = new Map<number, number>()
 
   while (indexX >= 0) {
-    const currentCharacter = data.split('\n')[indexY][indexX]
+    const currentCharacter = data.split('\n')[indexY]?.[indexX]
 
     if (currentCharacter === '+' || currentCharacter === '-' || currentCharacter === '*') {
       indexX--

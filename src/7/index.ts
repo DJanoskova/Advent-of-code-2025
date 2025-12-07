@@ -2,7 +2,9 @@ import { BEAMS } from "./input";
 
 const SPLITTER_CHARACTER = '^'
 
-const processDataAndGetResult = (input: string) => {
+const memo: Record<number, Record<number, number>> = {}
+
+export const processDataAndGetResult = (input: string) => {
   const rows = input.split('\n')
   const firstIndex = rows[0].indexOf('S')
 
@@ -10,14 +12,28 @@ const processDataAndGetResult = (input: string) => {
     return 0
   }
 
-  const beamIndexes = new Set<number>([firstIndex])
-
   const total = findPathForX(firstIndex, 2, rows, 0)
 
   return total
 }
 
+export const memoizeResult = (x: number, y: number, total: number) => {
+  if (memo[x]) {
+    memo[x][y] = total
+  } else {
+    memo[x] = {
+      [y]: total
+    }
+  }
+}
+
 export const findPathForX = (x: number, y: number, input: string[], total: number): number => {
+  const memoizedResult = memo[x]?.[y]
+
+  if (memoizedResult !== undefined) {
+    return total + memoizedResult
+  }
+
   if (y >= input.length) {
     return total + 1
   }
@@ -30,6 +46,7 @@ export const findPathForX = (x: number, y: number, input: string[], total: numbe
 
   const prevCharacter = input[y][x - 1]
   const nextCharacter = input[y][x + 1]
+  let prevTotal = total;
 
   if (prevCharacter !== undefined) {
     total = findPathForX(x - 1, y + 2, input, total)
@@ -38,6 +55,8 @@ export const findPathForX = (x: number, y: number, input: string[], total: numbe
   if (nextCharacter !== undefined) {
     total = findPathForX(x + 1, y + 2, input, total)
   }
+
+  memoizeResult(x, y, total - prevTotal)
 
   return total
 }
