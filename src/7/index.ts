@@ -3,55 +3,53 @@ import { BEAMS } from "./input";
 const SPLITTER_CHARACTER = '^'
 
 const processDataAndGetResult = (input: string) => {
-  let total = 0
   const rows = input.split('\n')
+  const firstIndex = rows[0].indexOf('S')
 
-  const beamIndexes = new Set<number>()
+  if (!firstIndex) {
+    return 0
+  }
 
-  rows.forEach(row => {
-    let x = 0;
+  const beamIndexes = new Set<number>([firstIndex])
 
-    while (x < row.length) {
-      const character = row[x]
-      if (character !== SPLITTER_CHARACTER) {
-        x++
-        continue
-      }
-
-      const isHitByABeam = beamIndexes.has(x)
-
-      if (total > 0 && !isHitByABeam) {
-        x++
-        continue
-      }
-
-      total++
-      beamIndexes.delete(x)
-
-      const prevCharacter = row[x - 1]
-      const nextCharacter = row[x + 1]
-
-      if (prevCharacter !== undefined) {
-        beamIndexes.add(x - 1)
-      }
-
-      if (nextCharacter !== undefined) {
-        beamIndexes.add(x + 1)
-      }
-
-      x++
-    }
-
-  })
+  const total = findPathForX(firstIndex, firstIndex, 2, rows, 0)
 
   return total
 }
 
+export const findPathForX = (beamXIndex: number, x: number, y: number, input: string[], total: number): number => {
+  const maxX = input[0].length
+
+  const isHitByABeam = beamXIndex === x
+
+  if (y >= input.length) {
+    return total + 1
+  }
+
+  const character = input[y][x]
+
+  if (character !== SPLITTER_CHARACTER) {
+    return findPathForX(beamXIndex, x, y + 2, input, total)
+  }
+
+  const prevCharacter = input[y][x - 1]
+  const nextCharacter = input[y][x + 1]
+
+  if (prevCharacter !== undefined) {
+    total = findPathForX(x - 1, x - 1, y + 2, input, total)
+  }
+
+  if (nextCharacter !== undefined) {
+    total = findPathForX(x + 1, x + 1, y + 2, input, total)
+  }
+
+  return total
+}
 
 export const runChallenge = () => {
   const total = processDataAndGetResult(BEAMS)
 
   console.log(
-    `The total number of splits is ${total}`
+    `The total number of possible solutions is ${total}`
   );
 };
