@@ -1,3 +1,3 @@
-import { runChallenge } from "./src/5";
+import { runChallenge } from "./src/7";
 
 runChallenge();
