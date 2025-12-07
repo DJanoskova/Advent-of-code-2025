@@ -12,16 +12,12 @@ const processDataAndGetResult = (input: string) => {
 
   const beamIndexes = new Set<number>([firstIndex])
 
-  const total = findPathForX(firstIndex, firstIndex, 2, rows, 0)
+  const total = findPathForX(firstIndex, 2, rows, 0)
 
   return total
 }
 
-export const findPathForX = (beamXIndex: number, x: number, y: number, input: string[], total: number): number => {
-  const maxX = input[0].length
-
-  const isHitByABeam = beamXIndex === x
-
+export const findPathForX = (x: number, y: number, input: string[], total: number): number => {
   if (y >= input.length) {
     return total + 1
   }
@@ -29,18 +25,18 @@ export const findPathForX = (beamXIndex: number, x: number, y: number, input: st
   const character = input[y][x]
 
   if (character !== SPLITTER_CHARACTER) {
-    return findPathForX(beamXIndex, x, y + 2, input, total)
+    return findPathForX(x, y + 2, input, total)
   }
 
   const prevCharacter = input[y][x - 1]
   const nextCharacter = input[y][x + 1]
 
   if (prevCharacter !== undefined) {
-    total = findPathForX(x - 1, x - 1, y + 2, input, total)
+    total = findPathForX(x - 1, y + 2, input, total)
   }
 
   if (nextCharacter !== undefined) {
-    total = findPathForX(x + 1, x + 1, y + 2, input, total)
+    total = findPathForX(x + 1, y + 2, input, total)
   }
 
   return total
