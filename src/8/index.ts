@@ -1,18 +1,17 @@
 import { BOX_COORDINATES } from "./input";
 
-const existingPairs = new Set<number[]>()
+const existingPairs = new Set<string>()
 const distancePairs = new Map<string, number>()
 
 const appendedIndexes = new Map<number, number>()
 
 export const sortBoxes = (boxes: string[], maxConnections = 10) => {
   let connections = 0;
-  let hasAddedPair = false
 
   while (connections < maxConnections) {
-    const [y1, y2] = findClosestTwoBoxes(boxes)
+    const coords = findClosestTwoBoxes(boxes)
 
-    existingPairs.add([y1, y2])
+    existingPairs.add(coords)
     connections++
 
     continue;
@@ -20,7 +19,12 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
 
   const result: Array<number[]> = []
 
-  for (const [y1, y2] of existingPairs.values()) {
+  console.log(existingPairs.values())
+
+  for (const coords of existingPairs.values()) {
+    const y1 = Number(coords.split('_')[0])
+    const y2 = Number(coords.split('_')[1])
+
     const index1 = appendedIndexes.get(y1)
     const index2 = appendedIndexes.get(y2)
 
@@ -56,7 +60,7 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
       })
 
       result[index1].push(...result[index2])
-      result.splice(index2, 1)
+      result.splice(index2, 1, [])
     }
   }
 
@@ -80,7 +84,9 @@ export const findClosestTwoBoxes = (boxes: string[]) => {
   let smallestDistanceCoords;
 
   while (row1 <= boxes.length - 2 && row2 <= boxes.length - 1) {
-    if (getPairExists(row1, row2)) {
+    const pairName = `${row1}_${row2}`;
+
+    if (existingPairs.has(pairName)) {
       row2++
       if (row2 === boxes.length) {
         row1++;
@@ -89,8 +95,6 @@ export const findClosestTwoBoxes = (boxes: string[]) => {
 
       continue
     }
-
-    const pairName = `${row1}-${row2}`;
 
     let existingDistance = distancePairs.get(pairName)
 
@@ -116,22 +120,7 @@ export const findClosestTwoBoxes = (boxes: string[]) => {
     }
   }
 
-  const foundCoords = smallestDistanceCoords?.split('-')
-
-  if (foundCoords === undefined) {
-    return [-1, -1]
-  }
-
-  return [Number(foundCoords[0]), Number(foundCoords[1])]
-}
-
-const getPairExists = (y1: number, y2: number) => {
-  for (const value of existingPairs.values()) {
-    if (value.includes(y1) && value.includes(y2)) {
-      return true
-    }
-  }
-  return false
+  return smallestDistanceCoords || ''
 }
 
 const getDistance3D = (coords1: number[], coords2: number[]) => {
