@@ -8,22 +8,23 @@ const appendedIndexes = new Map<number, number>()
 export const sortBoxes = (boxes: string[], maxConnections = 10) => {
   let connections = 0;
 
-  while (connections < maxConnections) {
-    const coords = findClosestTwoBoxes(boxes)
+  fillBoxDistanceMap(boxes)
 
-    existingPairs.add(coords)
-    connections++
-
-    continue;
-  }
+  const sortedBoxesByClosestDistance = new Map(
+    [...distancePairs.entries()].sort((a, b) => a[1] - b[1])
+  );
 
   const result: Array<number[]> = []
 
-  console.log(existingPairs.values())
+  for (const pairName of sortedBoxesByClosestDistance.keys()) {
+    if (maxConnections && connections >= maxConnections) {
+      break
+    }
 
-  for (const coords of existingPairs.values()) {
-    const y1 = Number(coords.split('_')[0])
-    const y2 = Number(coords.split('_')[1])
+    const [y1String, y2String] = pairName.split('_')
+
+    const y1 = Number(y1String)
+    const y2 = Number(y2String)
 
     const index1 = appendedIndexes.get(y1)
     const index2 = appendedIndexes.get(y2)
@@ -33,12 +34,16 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
       appendedIndexes.set(y1, result.length - 1)
       appendedIndexes.set(y2, result.length - 1)
 
+      connections++
+
       continue
     }
 
     if (index1 !== undefined && index2 === undefined) {
       result[index1].push(y2)
       appendedIndexes.set(y2, index1)
+
+      connections++
 
       continue
     }
@@ -47,11 +52,14 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
       result[index2].push(y1)
       appendedIndexes.set(y1, index2)
 
+      connections++
+
       continue
     }
 
     if (index1 !== undefined && index2 !== undefined) {
       if (index1 === index2) {
+        connections++
         continue;
       }
 
@@ -61,10 +69,12 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
 
       result[index1].push(...result[index2])
       result.splice(index2, 1, [])
+
+      connections++
     }
   }
 
-  const sorted = result.sort((a, b) => b.length - a.length);
+  const sorted = result.filter(a => !!a.length).sort((a, b) => b.length - a.length);
 
   let total = 1
   const TOTAL_RUNS = 3
@@ -76,42 +86,17 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
   return total
 }
 
-export const findClosestTwoBoxes = (boxes: string[]) => {
+export const fillBoxDistanceMap = (boxes: string[]) => {
   let row1 = 0;
   let row2 = 1;
-
-  let smallestDistance;
-  let smallestDistanceCoords;
 
   while (row1 <= boxes.length - 2 && row2 <= boxes.length - 1) {
     const pairName = `${row1}_${row2}`;
 
-    if (existingPairs.has(pairName)) {
-      row2++
-      if (row2 === boxes.length) {
-        row1++;
-        row2 = row1 + 1
-      }
-
-      continue
-    }
-
-    let existingDistance = distancePairs.get(pairName)
-
-    if (!existingDistance) {
-      const coords1 = getBoxCoordinates(boxes[row1])
-      const coords2 = getBoxCoordinates(boxes[row2])
-      existingDistance = getDistance3D(coords1, coords2)
-      distancePairs.set(pairName, existingDistance)
-    }
-
-    if (smallestDistance === undefined) {
-      smallestDistance = existingDistance
-      smallestDistanceCoords = pairName
-    } else if (existingDistance < smallestDistance) {
-      smallestDistance = existingDistance
-      smallestDistanceCoords = pairName
-    }
+    const coords1 = getBoxCoordinates(boxes[row1])
+    const coords2 = getBoxCoordinates(boxes[row2])
+    const distance = getDistance3D(coords1, coords2)
+    distancePairs.set(pairName, distance)
 
     row2++
     if (row2 === boxes.length) {
@@ -119,8 +104,6 @@ export const findClosestTwoBoxes = (boxes: string[]) => {
       row2 = row1 + 1
     }
   }
-
-  return smallestDistanceCoords || ''
 }
 
 const getDistance3D = (coords1: number[], coords2: number[]) => {
