@@ -5,18 +5,20 @@ const distancePairs = new Map<string, number>()
 
 const appendedIndexes = new Map<number, number>()
 
-export const sortBoxes = (boxes: string[], maxConnections = 10) => {
+export const sortBoxes = (boxes: string[], maxConnections = 0) => {
   let connections = 0;
 
   fillBoxDistanceMap(boxes)
 
-  const sortedBoxesByClosestDistance = new Map(
-    [...distancePairs.entries()].sort((a, b) => a[1] - b[1])
-  );
+  let sortedBoxesByClosestDistance = [...distancePairs.entries()].sort((a, b) => a[1] - b[1])
+  if (maxConnections) {
+    sortedBoxesByClosestDistance = sortedBoxesByClosestDistance.slice(0, maxConnections)
+  }
 
   const result: Array<number[]> = []
+  let lastConnection = ''
 
-  for (const pairName of sortedBoxesByClosestDistance.keys()) {
+  for (const [pairName] of sortedBoxesByClosestDistance) {
     if (maxConnections && connections >= maxConnections) {
       break
     }
@@ -34,6 +36,7 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
       appendedIndexes.set(y1, result.length - 1)
       appendedIndexes.set(y2, result.length - 1)
 
+      lastConnection = pairName
       connections++
 
       continue
@@ -43,6 +46,8 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
       result[index1].push(y2)
       appendedIndexes.set(y2, index1)
 
+
+      lastConnection = pairName
       connections++
 
       continue
@@ -52,6 +57,7 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
       result[index2].push(y1)
       appendedIndexes.set(y1, index2)
 
+      lastConnection = pairName
       connections++
 
       continue
@@ -67,6 +73,8 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
         appendedIndexes.set(number, index1)
       })
 
+      lastConnection = pairName
+
       result[index1].push(...result[index2])
       result.splice(index2, 1, [])
 
@@ -74,16 +82,26 @@ export const sortBoxes = (boxes: string[], maxConnections = 10) => {
     }
   }
 
-  const sorted = result.filter(a => !!a.length).sort((a, b) => b.length - a.length);
+  // # PART 1 beginning #
 
-  let total = 1
-  const TOTAL_RUNS = 3
+  // const sorted = result.filter(a => !!a.length).sort((a, b) => b.length - a.length);
 
-  for (let i = 0; i < TOTAL_RUNS; i++) {
-    total *= sorted[i].length
-  }
+  // let total = 1
+  // const TOTAL_RUNS = 3
 
-  return total
+  // for (let i = 0; i < TOTAL_RUNS; i++) {
+  //   total *= sorted[i]?.length ?? 0
+  // }
+
+  // return total
+
+  // # PART 1 end #
+
+  const [lastY1, lastY2] = lastConnection.split('_')
+  const [x1] = getBoxCoordinates(boxes[Number(lastY1)])
+  const [x2] = getBoxCoordinates(boxes[Number(lastY2)])
+
+  return x1 * x2
 }
 
 export const fillBoxDistanceMap = (boxes: string[]) => {
