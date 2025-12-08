@@ -13,9 +13,6 @@ describe('sortBoxes', () => {
   // })
 
   it('processes part 2 correctly', () => {
-    // const result = sortBoxes(BOX_COORDINATES.split('\n'))
-    // expect(result).toEqual(40)
-
     const result = sortBoxes(BOX_COORDINATES.split('\n'))
     expect(result).toEqual(169521198)
   })
